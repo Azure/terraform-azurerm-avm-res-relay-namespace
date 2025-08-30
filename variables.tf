@@ -6,13 +6,11 @@ variable "location" {
 
 variable "name" {
   type        = string
-  description = "The name of the this resource."
+  description = "The name of the Azure Relay namespace."
 
   validation {
-    condition     = can(regex("TODO", var.name))
-    error_message = "The name must be TODO." # TODO remove the example below once complete:
-    #condition     = can(regex("^[a-z0-9]{5,50}$", var.name))
-    #error_message = "The name must be between 5 and 50 characters long and can only contain lowercase letters and numbers."
+    condition     = can(regex("^[a-zA-Z0-9][-a-zA-Z0-9]{3,48}[a-zA-Z0-9]$", var.name))
+    error_message = "The name must be 5-50 characters long, start and end with a letter or number, and can contain only letters, numbers, and hyphens."
   }
 }
 
@@ -88,6 +86,13 @@ DESCRIPTION
     )
     error_message = "At least one of `workspace_resource_id`, `storage_account_resource_id`, `marketplace_partner_resource_id`, or `event_hub_authorization_rule_resource_id`, must be set."
   }
+}
+
+variable "disable_local_auth" {
+  type        = bool
+  default     = false
+  description = "Whether to disable local authentication and require clients to be authorized via Azure Active Directory only."
+  nullable    = false
 }
 
 variable "enable_telemetry" {
@@ -227,6 +232,18 @@ A map of role assignments to create on this resource. The map key is deliberatel
 > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
 DESCRIPTION
   nullable    = false
+}
+
+variable "sku_name" {
+  type        = string
+  default     = "Standard"
+  description = "The SKU name of the Azure Relay namespace."
+  nullable    = false
+
+  validation {
+    condition     = contains(["Standard", "Premium"], var.sku_name)
+    error_message = "The SKU name must be either 'Standard' or 'Premium'."
+  }
 }
 
 # tflint-ignore: terraform_unused_declarations
