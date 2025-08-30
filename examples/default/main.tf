@@ -2,6 +2,10 @@ terraform {
   required_version = "~> 1.5"
 
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.4"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.21"
@@ -21,6 +25,8 @@ provider "azurerm" {
   features {}
 }
 
+provider "azapi" {
+}
 
 ## Section to provide a random Azure region for the resource group
 # This allows us to randomize the region for the resource group.
@@ -49,16 +55,18 @@ resource "azurerm_resource_group" "this" {
 }
 
 # This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
-module "test" {
+module "relay_namespace" {
   source = "../../"
 
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  # ...
+  # source             = "Azure/avm-res-relay-namespace/azurerm"
   location            = azurerm_resource_group.this.location
-  name                = "TODO" # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
+  name                = module.naming.relay_namespace.name_unique
   resource_group_name = azurerm_resource_group.this.name
+  disable_local_auth  = false
   enable_telemetry    = var.enable_telemetry # see variables.tf
+  sku_name            = "Standard"
+  tags = {
+    environment = "development"
+    workload    = "example"
+  }
 }
