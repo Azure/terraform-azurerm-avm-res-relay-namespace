@@ -6,14 +6,12 @@ This directory contains examples of how to use the Azure Relay Namespace module.
 
 - **[Default](./default/)**: Basic deployment of an Azure Relay Namespace with standard configuration
 - **[Private Endpoint](./private-endpoint/)**: Azure Relay Namespace with private endpoints for secure networking
-- **[Customer-Managed Keys (CMK)](./cmk/)**: Azure Relay Namespace with customer-managed keys for encryption
 
 ## Example Implementation Notes
 
 - Each example is self-contained and deployable
 - All examples use randomized naming to ensure uniqueness
 - No manual input variables are required to deploy the examples
-- Premium SKU is required for certain features like Customer-Managed Keys
 
 ## Usage
 

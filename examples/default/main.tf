@@ -83,10 +83,10 @@ module "relay_namespace" {
   disable_local_auth = false
   enable_telemetry   = var.enable_telemetry # see variables.tf
   # Add lock to the resource
-  lock = {
-    kind = "CanNotDelete"
-    name = "lock-${module.naming.relay_namespace.name_unique}"
-  }
+  # lock = {
+  #   kind = "CanNotDelete"
+  #   name = "lock-${module.naming.relay_namespace.name_unique}"
+  # }
   public_network_access = "SecuredByPerimeter" # Enable public network access
   # Add role assignments for the resource
   role_assignments = {

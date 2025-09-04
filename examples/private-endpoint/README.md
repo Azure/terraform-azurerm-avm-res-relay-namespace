@@ -172,11 +172,7 @@ Default: `true`
 
 ## Outputs
 
-The following outputs are exported:
-
-### <a name="output_private_endpoint_details"></a> [private\_endpoint\_details](#output\_private\_endpoint\_details)
-
-Description: Optional: Output the private endpoint information
+No outputs.
 
 ## Modules
 
