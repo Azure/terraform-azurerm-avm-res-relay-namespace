@@ -101,7 +101,7 @@ module "relay_namespace" {
       principal_id               = data.azurerm_client_config.current.object_id
       role_definition_id_or_name = "Azure Relay Sender"
       description                = "Example role assignment for the relay namespace"
-      principal_type             = "User"
+      principal_type             = "ServicePrincipal" # OR "User" OR "Group"
     }
   }
   sku_name = "Standard"
