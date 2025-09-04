@@ -118,7 +118,9 @@ module "relay_namespace" {
       # }
     }
   }
-  sku_name = "Standard"
+  # Explicitly disable public network access when using private endpoints
+  public_network_access = "Disabled"
+  sku_name              = "Standard"
   tags = {
     environment = "development"
     workload    = "example-private-endpoint"
