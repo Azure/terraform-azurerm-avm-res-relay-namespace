@@ -137,7 +137,8 @@ Default: `null`
 
 ### <a name="input_private_endpoints"></a> [private\_endpoints](#input\_private\_endpoints)
 
-Description: A map of private endpoints to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+Description: A map of private endpoints to create on this resource. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.  
+NOTE: For Azure Relay Namespace, private endpoints always use the "namespace" subresource (groupId).
 
 - `name` - (Optional) The name of the private endpoint. One will be generated if not set.
 - `role_assignments` - (Optional) A map of role assignments to create on the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time. See `var.role_assignments` for more information.
@@ -146,8 +147,7 @@ Description: A map of private endpoints to create on this resource. The map key 
 - `subnet_resource_id` - The resource ID of the subnet to deploy the private endpoint in.
 - `private_dns_zone_group_name` - (Optional) The name of the private DNS zone group. One will be generated if not set.
 - `private_dns_zone_resource_ids` - (Optional) A set of resource IDs of private DNS zones to associate with the private endpoint. If not set, no zone groups will be created and the private endpoint will not be associated with any private DNS zones. DNS records must be managed external to this module.
-- `subresource_names` - (Optional) A list of subresource names (groupIds) which the private endpoint is able to connect to. For Azure Relay Namespace, the only supported value is ["namespace"]. Defaults to ["namespace"].
-- `application_security_group_resource_ids` - (Optional) A map of resource IDs of application security groups to associate with the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+- `application_security_group_associations` - (Optional) A map of resource IDs of application security groups to associate with the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
 - `private_service_connection_name` - (Optional) The name of the private service connection. One will be generated if not set.
 - `network_interface_name` - (Optional) The name of the network interface. One will be generated if not set.
 - `location` - (Optional) The Azure location where the resources will be deployed. Defaults to the location of the resource group.
@@ -177,7 +177,6 @@ map(object({
     }), null)
     tags                                    = optional(map(string), null)
     subnet_resource_id                      = string
-    subresource_names                       = optional(list(string), ["namespace"]) # Default value for Azure Relay is "namespace"
     private_dns_zone_group_name             = optional(string, "default")
     private_dns_zone_resource_ids           = optional(set(string), [])
     application_security_group_associations = optional(map(string), {})
