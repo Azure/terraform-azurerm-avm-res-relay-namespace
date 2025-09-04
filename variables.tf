@@ -20,29 +20,6 @@ variable "resource_group_name" {
   description = "The resource group where the resources will be deployed."
 }
 
-# required AVM interfaces
-# remove only if not supported by the resource
-# tflint-ignore: terraform_unused_declarations
-variable "customer_managed_key" {
-  type = object({
-    key_vault_resource_id = string
-    key_name              = string
-    key_version           = optional(string, null)
-    user_assigned_identity = optional(object({
-      resource_id = string
-    }), null)
-  })
-  default     = null
-  description = <<DESCRIPTION
-A map describing customer-managed keys to associate with the resource. This includes the following properties:
-- `key_vault_resource_id` - The resource ID of the Key Vault where the key is stored.
-- `key_name` - The name of the key.
-- `key_version` - (Optional) The version of the key. If not specified, the latest version is used.
-- `user_assigned_identity` - (Optional) An object representing a user-assigned identity with the following properties:
-  - `resource_id` - The resource ID of the user-assigned identity.
-DESCRIPTION
-}
-
 variable "diagnostic_settings" {
   type = map(object({
     name                                     = optional(string, null)
@@ -125,22 +102,6 @@ DESCRIPTION
   }
 }
 
-# tflint-ignore: terraform_unused_declarations
-variable "managed_identities" {
-  type = object({
-    system_assigned            = optional(bool, false)
-    user_assigned_resource_ids = optional(set(string), [])
-  })
-  default     = {}
-  description = <<DESCRIPTION
-Controls the Managed Identity configuration on this resource. The following properties can be specified:
-
-- `system_assigned` - (Optional) Specifies if the System Assigned Managed Identity should be enabled.
-- `user_assigned_resource_ids` - (Optional) Specifies a list of User Assigned Managed Identity resource IDs to be assigned to this resource.
-DESCRIPTION
-  nullable    = false
-}
-
 variable "private_endpoints" {
   type = map(object({
     name = optional(string, null)
@@ -152,6 +113,7 @@ variable "private_endpoints" {
       condition                              = optional(string, null)
       condition_version                      = optional(string, null)
       delegated_managed_identity_resource_id = optional(string, null)
+      principal_type                         = optional(string, null)
     })), {})
     lock = optional(object({
       kind = string
@@ -159,6 +121,7 @@ variable "private_endpoints" {
     }), null)
     tags                                    = optional(map(string), null)
     subnet_resource_id                      = string
+    subresource_names                       = optional(list(string), ["namespace"]) # Default value for Azure Relay is "namespace"
     private_dns_zone_group_name             = optional(string, "default")
     private_dns_zone_resource_ids           = optional(set(string), [])
     application_security_group_associations = optional(map(string), {})
@@ -182,6 +145,7 @@ A map of private endpoints to create on this resource. The map key is deliberate
 - `subnet_resource_id` - The resource ID of the subnet to deploy the private endpoint in.
 - `private_dns_zone_group_name` - (Optional) The name of the private DNS zone group. One will be generated if not set.
 - `private_dns_zone_resource_ids` - (Optional) A set of resource IDs of private DNS zones to associate with the private endpoint. If not set, no zone groups will be created and the private endpoint will not be associated with any private DNS zones. DNS records must be managed external to this module.
+- `subresource_names` - (Optional) A list of subresource names (groupIds) which the private endpoint is able to connect to. For Azure Relay Namespace, the only supported value is ["namespace"]. Defaults to ["namespace"].
 - `application_security_group_resource_ids` - (Optional) A map of resource IDs of application security groups to associate with the private endpoint. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
 - `private_service_connection_name` - (Optional) The name of the private service connection. One will be generated if not set.
 - `network_interface_name` - (Optional) The name of the network interface. One will be generated if not set.
@@ -203,6 +167,18 @@ variable "private_endpoints_manage_dns_zone_group" {
   default     = true
   description = "Whether to manage private DNS zone groups with this module. If set to false, you must manage private DNS zone groups externally, e.g. using Azure Policy."
   nullable    = false
+}
+
+variable "public_network_access" {
+  type        = string
+  default     = "Disabled"
+  description = "Determines if public network access is allowed for the Azure Relay namespace. Valid values are 'Enabled', 'Disabled', or 'SecuredByPerimeter'. Defaults to 'Disabled'."
+  nullable    = false
+
+  validation {
+    condition     = contains(["Enabled", "Disabled", "SecuredByPerimeter"], var.public_network_access)
+    error_message = "The public_network_access value must be one of: 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
+  }
 }
 
 variable "role_assignments" {
@@ -241,7 +217,7 @@ variable "sku_name" {
   nullable    = false
 
   validation {
-    condition     = contains(["Standard", "Premium"], var.sku_name)
+    condition     = contains(["Standard"], var.sku_name)
     error_message = "The SKU name must be either 'Standard' or 'Premium'."
   }
 }

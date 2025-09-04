@@ -14,6 +14,10 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.5"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.11"
+    }
   }
 }
 
@@ -22,6 +26,18 @@ provider "azurerm" {
 }
 
 provider "azapi" {
+}
+
+# Get the current client configuration from Azure
+data "azurerm_client_config" "current" {}
+
+# Create a Log Analytics Workspace for diagnostic settings
+resource "azurerm_log_analytics_workspace" "this" {
+  location            = azurerm_resource_group.this.location
+  name                = module.naming.log_analytics_workspace.name_unique
+  resource_group_name = azurerm_resource_group.this.name
+  retention_in_days   = 30
+  sku                 = "PerGB2018"
 }
 
 ## Section to provide a random Azure region for the resource group
@@ -54,13 +70,38 @@ resource "azurerm_resource_group" "this" {
 module "relay_namespace" {
   source = "../../"
 
-  # source             = "Azure/avm-res-relay-namespace/azurerm"
+  # source                = "Azure/avm-res-relay-namespace/azurerm"
   location            = azurerm_resource_group.this.location
   name                = module.naming.relay_namespace.name_unique
   resource_group_name = azurerm_resource_group.this.name
-  disable_local_auth  = false
-  enable_telemetry    = var.enable_telemetry # see variables.tf
-  sku_name            = "Standard"
+  # Add diagnostic settings for the resource
+  diagnostic_settings = {
+    to_log_analytics = {
+      name                  = "to-log-analytics"
+      log_categories        = ["HybridConnections"]
+      log_groups            = [] # Empty to avoid conflict with log_categories
+      metric_categories     = ["AllMetrics"]
+      workspace_resource_id = azurerm_log_analytics_workspace.this.id
+    }
+  }
+  disable_local_auth = false
+  enable_telemetry   = var.enable_telemetry # see variables.tf
+  # Add lock to the resource
+  lock = {
+    kind = "CanNotDelete"
+    name = "lock-${module.naming.relay_namespace.name_unique}"
+  }
+  public_network_access = "SecuredByPerimeter" # Enable public network access
+  # Add role assignments for the resource
+  role_assignments = {
+    example_role = {
+      principal_id               = data.azurerm_client_config.current.object_id
+      role_definition_id_or_name = "Azure Relay Sender"
+      description                = "Example role assignment for the relay namespace"
+      principal_type             = "User"
+    }
+  }
+  sku_name = "Standard"
   tags = {
     environment = "development"
     workload    = "example"

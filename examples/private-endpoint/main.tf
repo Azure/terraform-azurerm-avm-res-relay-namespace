@@ -16,13 +16,15 @@ terraform {
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.5"
+      version = "~> 3.5"
     }
   }
 }
 
 provider "azurerm" {
   features {}
+  subscription_id = "bfafcd7f-e975-442d-bb77-1a727f794e23"
+  tenant_id       = "8f27ba4c-fd5c-428a-8080-8b720b54e659"
 }
 
 provider "azapi" {
@@ -106,6 +108,7 @@ module "relay_namespace" {
         azurerm_private_dns_zone.relay.id
       ]
       private_dns_zone_group_name = "privatednszonegroup"
+      subresource_names           = ["namespace"] # Required for Azure Relay
       # If you need specific IP configurations
       # ip_configurations = {
       #   primary = {

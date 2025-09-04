@@ -1,3 +1,8 @@
+output "debug_private_endpoints" {
+  description = "Debug output for private_endpoints variable"
+  value       = var.private_endpoints
+}
+
 output "id" {
   description = "The ID of the Azure Relay Namespace."
   value       = azapi_resource.relay_namespace.id
@@ -16,12 +21,17 @@ output "primary_connection_string" {
 
 output "private_endpoints" {
   description = "A map of the private endpoints created."
-  value       = var.private_endpoints_manage_dns_zone_group ? azurerm_private_endpoint.this_managed_dns_zone_groups : azurerm_private_endpoint.this_unmanaged_dns_zone_groups
+  value       = azapi_resource.private_endpoints
 }
 
 output "resource_group_name" {
   description = "The name of the resource group in which the Azure Relay Namespace is created."
   value       = var.resource_group_name
+}
+
+output "resource_id" {
+  description = "The ID of the Azure Relay Namespace."
+  value       = azapi_resource.relay_namespace.id
 }
 
 output "secondary_connection_string" {

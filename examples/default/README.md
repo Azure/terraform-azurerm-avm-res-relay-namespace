@@ -21,14 +21,32 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.5"
     }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.11"
+    }
   }
 }
 
 provider "azurerm" {
   features {}
+  subscription_id = "bfafcd7f-e975-442d-bb77-1a727f794e23"
+  tenant_id       = "8f27ba4c-fd5c-428a-8080-8b720b54e659"
 }
 
 provider "azapi" {
+}
+
+# Get the current client configuration from Azure
+data "azurerm_client_config" "current" {}
+
+# Create a Log Analytics Workspace for diagnostic settings
+resource "azurerm_log_analytics_workspace" "this" {
+  location            = azurerm_resource_group.this.location
+  name                = module.naming.log_analytics_workspace.name_unique
+  resource_group_name = azurerm_resource_group.this.name
+  retention_in_days   = 30
+  sku                 = "PerGB2018"
 }
 
 ## Section to provide a random Azure region for the resource group
@@ -61,13 +79,38 @@ resource "azurerm_resource_group" "this" {
 module "relay_namespace" {
   source = "../../"
 
-  # source             = "Azure/avm-res-relay-namespace/azurerm"
+  # source                = "Azure/avm-res-relay-namespace/azurerm"
   location            = azurerm_resource_group.this.location
   name                = module.naming.relay_namespace.name_unique
   resource_group_name = azurerm_resource_group.this.name
-  disable_local_auth  = false
-  enable_telemetry    = var.enable_telemetry # see variables.tf
-  sku_name            = "Standard"
+  # Add diagnostic settings for the resource
+  diagnostic_settings = {
+    to_log_analytics = {
+      name                  = "to-log-analytics"
+      log_categories        = ["HybridConnections"]
+      log_groups            = [] # Empty to avoid conflict with log_categories
+      metric_categories     = ["AllMetrics"]
+      workspace_resource_id = azurerm_log_analytics_workspace.this.id
+    }
+  }
+  disable_local_auth = false
+  enable_telemetry   = var.enable_telemetry # see variables.tf
+  # Add lock to the resource
+  lock = {
+    kind = "CanNotDelete"
+    name = "lock-${module.naming.relay_namespace.name_unique}"
+  }
+  public_network_access = "SecuredByPerimeter" # Enable public network access
+  # Add role assignments for the resource
+  role_assignments = {
+    example_role = {
+      principal_id               = data.azurerm_client_config.current.object_id
+      role_definition_id_or_name = "Azure Relay Sender"
+      description                = "Example role assignment for the relay namespace"
+      principal_type             = "User"
+    }
+  }
+  sku_name = "Standard"
   tags = {
     environment = "development"
     workload    = "example"
@@ -88,12 +131,16 @@ The following requirements are needed by this module:
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
 
+- <a name="requirement_time"></a> [time](#requirement\_time) (~> 0.11)
+
 ## Resources
 
 The following resources are used by this module:
 
+- [azurerm_log_analytics_workspace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_workspace) (resource)
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
 - [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
+- [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
