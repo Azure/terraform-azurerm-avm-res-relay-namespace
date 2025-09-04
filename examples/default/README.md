@@ -81,7 +81,7 @@ module "relay_namespace" {
   diagnostic_settings = {
     to_log_analytics = {
       name                  = "to-log-analytics"
-      log_categories        = ["HybridConnections"]
+      log_categories        = ["allLogs"]
       log_groups            = [] # Empty to avoid conflict with log_categories
       metric_categories     = ["AllMetrics"]
       workspace_resource_id = azurerm_log_analytics_workspace.this.id

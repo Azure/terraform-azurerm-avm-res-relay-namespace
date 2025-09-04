@@ -1,8 +1,3 @@
-output "id" {
-  description = "The ID of the Azure Relay Namespace."
-  value       = azapi_resource.relay_namespace.id
-}
-
 output "name" {
   description = "The name of the Azure Relay Namespace."
   value       = azapi_resource.relay_namespace.name
@@ -22,6 +17,11 @@ output "private_endpoints" {
 output "resource_group_name" {
   description = "The name of the resource group in which the Azure Relay Namespace is created."
   value       = var.resource_group_name
+}
+
+output "resource_id" {
+  description = "The ID of the Azure Relay Namespace."
+  value       = azapi_resource.relay_namespace.id
 }
 
 output "secondary_connection_string" {

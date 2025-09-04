@@ -261,10 +261,6 @@ Default: `null`
 
 The following outputs are exported:
 
-### <a name="output_id"></a> [id](#output\_id)
-
-Description: The ID of the Azure Relay Namespace.
-
 ### <a name="output_name"></a> [name](#output\_name)
 
 Description: The name of the Azure Relay Namespace.
@@ -280,6 +276,10 @@ Description: A map of the private endpoints created.
 ### <a name="output_resource_group_name"></a> [resource\_group\_name](#output\_resource\_group\_name)
 
 Description: The name of the resource group in which the Azure Relay Namespace is created.
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: The ID of the Azure Relay Namespace.
 
 ### <a name="output_secondary_connection_string"></a> [secondary\_connection\_string](#output\_secondary\_connection\_string)
 
