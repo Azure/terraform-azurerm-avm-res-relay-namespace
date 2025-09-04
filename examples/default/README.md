@@ -11,15 +11,15 @@ terraform {
   required_providers {
     azapi = {
       source  = "Azure/azapi"
-      version = "2.4.0"
+      version = ">= 2.4"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.21.0"
+      version = ">= 4.21"
     }
     random = {
       source  = "hashicorp/random"
-      version = "3.5.0"
+      version = ">= 3.5.0"
     }
   }
 }
@@ -119,20 +119,20 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (2.4.0)
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 2.4)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (4.21.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.21)
 
-- <a name="requirement_random"></a> [random](#requirement\_random) (3.5.0)
+- <a name="requirement_random"></a> [random](#requirement\_random) (>= 3.5.0)
 
 ## Resources
 
 The following resources are used by this module:
 
-- [azurerm_log_analytics_workspace.this](https://registry.terraform.io/providers/hashicorp/azurerm/4.21.0/docs/resources/log_analytics_workspace) (resource)
-- [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/4.21.0/docs/resources/resource_group) (resource)
-- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/3.5.0/docs/resources/integer) (resource)
-- [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/4.21.0/docs/data-sources/client_config) (data source)
+- [azurerm_log_analytics_workspace.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/log_analytics_workspace) (resource)
+- [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
+- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
+- [azurerm_client_config.current](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
