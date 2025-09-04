@@ -11,15 +11,15 @@ terraform {
   required_providers {
     azapi = {
       source  = "Azure/azapi"
-      version = "2.4"
+      version = "2.4.0"
     }
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "4.21"
+      version = "4.21.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.5"
+      version = "3.5.0"
     }
   }
 }
@@ -137,22 +137,22 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (2.4)
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (2.4.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (4.21)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (4.21.0)
 
-- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
+- <a name="requirement_random"></a> [random](#requirement\_random) (3.5.0)
 
 ## Resources
 
 The following resources are used by this module:
 
-- [azurerm_private_dns_zone.relay](https://registry.terraform.io/providers/hashicorp/azurerm/4.21/docs/resources/private_dns_zone) (resource)
-- [azurerm_private_dns_zone_virtual_network_link.relay](https://registry.terraform.io/providers/hashicorp/azurerm/4.21/docs/resources/private_dns_zone_virtual_network_link) (resource)
-- [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/4.21/docs/resources/resource_group) (resource)
-- [azurerm_subnet.endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/4.21/docs/resources/subnet) (resource)
-- [azurerm_virtual_network.this](https://registry.terraform.io/providers/hashicorp/azurerm/4.21/docs/resources/virtual_network) (resource)
-- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
+- [azurerm_private_dns_zone.relay](https://registry.terraform.io/providers/hashicorp/azurerm/4.21.0/docs/resources/private_dns_zone) (resource)
+- [azurerm_private_dns_zone_virtual_network_link.relay](https://registry.terraform.io/providers/hashicorp/azurerm/4.21.0/docs/resources/private_dns_zone_virtual_network_link) (resource)
+- [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/4.21.0/docs/resources/resource_group) (resource)
+- [azurerm_subnet.endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/4.21.0/docs/resources/subnet) (resource)
+- [azurerm_virtual_network.this](https://registry.terraform.io/providers/hashicorp/azurerm/4.21.0/docs/resources/virtual_network) (resource)
+- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/3.5.0/docs/resources/integer) (resource)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
