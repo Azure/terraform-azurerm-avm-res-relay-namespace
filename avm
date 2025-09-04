@@ -3,7 +3,19 @@
 set -e
 
 usage () {
-  echo "Usage: avm <make target>"
+  echo "Us# Check if the host Docker socket exists, mount it into the container so the container can talk to the host docker daemon
+if [ -S /var/run/docker.sock ]; then
+  DOCKER_SOCK_MOUNT="-v /var/run/docker.sock:/var/run/docker.sock"
+fi
+
+# New: allow overriding TUI behavior with PORCH_FORCE_TUI and PORCH_NO_TUI environment variables.
+# - If PORCH_FORCE_TUI is set, force TUI and interactive mode (even in GH Actions).
+# - If PORCH_NO_TUI is set, explicitly disable TUI.
+# - Otherwise, fallback to previous behavior: enable TUI only when not in GitHub Actions and NO_COLOR is not set.
+if [ -n "${PORCH_FORCE_TUI}" ]; then
+  TUI="--tui"
+  DOCKER_INTERACTIVE="-it"
+  export FORCE_COLOR=1get>"
 }
 
 # We need to do this because bash doesn't like it when a script is updated in place.
@@ -53,11 +65,16 @@ if [ -S /var/run/docker.sock ]; then
   DOCKER_SOCK_MOUNT="-v /var/run/docker.sock:/var/run/docker.sock"
 fi
 
+<<<<<<< HEAD
 # New: allow overriding TUI behavior with PORCH_FORCE_TUI and PORCH_NO_TUI environment variables.
 # - If PORCH_FORCE_TUI is set, force TUI and interactive mode (even in GH Actions).
 # - If PORCH_NO_TUI is set, explicitly disable TUI.
 # - Otherwise, fallback to previous behavior: enable TUI only when not in GitHub Actions and NO_COLOR is not set.
 if [ -n "${PORCH_FORCE_TUI}" ]; then
+=======
+# If we are not in GitHub Actions and NO_COLOR is not set, we want to use TUI and interactive mode
+if [ -z "${GITHUB_RUN_ID}" ] && [ -z "${NO_COLOR}" ]; then
+>>>>>>> origin/main
   TUI="--tui"
   DOCKER_INTERACTIVE="-it"
   export FORCE_COLOR=1
