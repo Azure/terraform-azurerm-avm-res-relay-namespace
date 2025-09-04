@@ -216,8 +216,7 @@ variable "sku_name" {
   nullable    = false
 
   validation {
-    condition     = contains(["Standard"], var.sku_name)
-    error_message = "The SKU name must be either 'Standard' or 'Premium'."
+    error_message = "The SKU name must be 'Standard'."
   }
 }
 
