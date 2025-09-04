@@ -1,8 +1,3 @@
-output "debug_private_endpoints" {
-  description = "Debug output for private_endpoints variable"
-  value       = var.private_endpoints
-}
-
 output "id" {
   description = "The ID of the Azure Relay Namespace."
   value       = azapi_resource.relay_namespace.id
