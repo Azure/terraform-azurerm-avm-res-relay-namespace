@@ -75,13 +75,13 @@ resource "azurerm_private_dns_zone" "relay" {
 }
 
 # Link the private DNS zone to the virtual network
-resource "azurerm_private_dns_zone_virtual_network_link" "relay" {
-  name                  = "relay-zone-link"
-  private_dns_zone_name = azurerm_private_dns_zone.relay.name
-  resource_group_name   = azurerm_resource_group.this.name
-  virtual_network_id    = azurerm_virtual_network.this.id
-  registration_enabled  = false
-}
+# resource "azurerm_private_dns_zone_virtual_network_link" "relay" {
+#   name                  = "relay-zone-link"
+#   private_dns_zone_name = azurerm_private_dns_zone.relay.name
+#   resource_group_name   = azurerm_resource_group.this.name
+#   virtual_network_id    = azurerm_virtual_network.this.id
+#   registration_enabled  = false
+# }
 
 # This is the module call with private endpoint configuration
 module "relay_namespace" {
@@ -101,7 +101,9 @@ module "relay_namespace" {
       private_dns_zone_resource_ids = [
         azurerm_private_dns_zone.relay.id
       ]
-      private_dns_zone_group_name = "privatednszonegroup"
+      subresource_name                        = "namespace"
+      private_dns_zone_group_name             = "privatednszonegroup"
+
       # If you need specific IP configurations
       # ip_configurations = {
       #   primary = {
@@ -111,6 +113,7 @@ module "relay_namespace" {
       # }
     }
   }
+  private_endpoints_manage_dns_zone_group = false
   # Explicitly disable public network access when using private endpoints
   public_network_access = "Disabled"
   sku_name              = "Standard"
