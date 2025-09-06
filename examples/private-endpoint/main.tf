@@ -101,8 +101,8 @@ module "relay_namespace" {
       private_dns_zone_resource_ids = [
         azurerm_private_dns_zone.relay.id
       ]
-      subresource_name                        = "namespace"
-      private_dns_zone_group_name             = "privatednszonegroup"
+      subresource_name            = "namespace"
+      private_dns_zone_group_name = "privatednszonegroup"
 
       # If you need specific IP configurations
       # ip_configurations = {
