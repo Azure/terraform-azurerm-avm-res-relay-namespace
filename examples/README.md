@@ -1,9 +1,30 @@
 # Examples
 
-- Create a directory for each example.
-- Create a `_header.md` file in each directory to describe the example.
-- See the `default` example provided as a skeleton - this must remain, but you can add others.
-- Run `make fmt && make docs` from the repo root to generate the required documentation.
-- If you want an example to be ignored by the end to end pipeline add a `.e2eignore` file to the example directory. 
+This directory contains examples of how to use the Azure Relay Namespace module.
 
-> **Note:** Examples must be deployable and idempotent. Ensure that no input variables are required to run the example and that random values are used to ensure unique resource names. E.g. use the [naming module](https://registry.terraform.io/modules/Azure/naming/azurerm/latest) to generate a unique name for a resource.
+## Available Examples
+
+- **[Default](./default/)**: Basic deployment of an Azure Relay Namespace with standard configuration
+- **[Private Endpoint](./private-endpoint/)**: Azure Relay Namespace with private endpoints for secure networking
+
+## Example Implementation Notes
+
+- Each example is self-contained and deployable
+- All examples use randomized naming to ensure uniqueness
+- No manual input variables are required to deploy the examples
+
+## Usage
+
+Each example can be deployed by navigating to its directory and running:
+
+```bash
+terraform init
+terraform plan
+terraform apply
+```
+
+To destroy the resources when finished:
+
+```bash
+terraform destroy
+```
