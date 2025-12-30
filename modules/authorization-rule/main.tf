@@ -8,4 +8,9 @@ resource "azapi_resource" "authorization_rule" {
       rights = var.rights
     }
   }
+
+  create_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
+  delete_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
+  read_headers   = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
+  update_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
 }

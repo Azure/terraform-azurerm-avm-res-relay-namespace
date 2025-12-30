@@ -39,3 +39,15 @@ variable "trusted_service_access_enabled" {
   default     = false
   description = "Whether to enable trusted Azure service access."
 }
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = false
+  description = "Controls whether telemetry is enabled for the submodule."
+}
+
+variable "avm_azapi_header" {
+  type        = string
+  default     = ""
+  description = "The AVM AzAPI header value to use for telemetry."
+}

@@ -24,3 +24,15 @@ variable "user_metadata" {
   default     = null
   description = "The user metadata associated with the hybrid connection."
 }
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = false
+  description = "Controls whether telemetry is enabled for the submodule."
+}
+
+variable "avm_azapi_header" {
+  type        = string
+  default     = ""
+  description = "The AVM AzAPI header value to use for telemetry."
+}
