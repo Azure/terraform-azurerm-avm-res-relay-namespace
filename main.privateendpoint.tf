@@ -17,6 +17,10 @@ resource "azapi_resource" "private_endpoints" {
   name      = coalesce(local.private_endpoints[each.key].name, "pe-${var.name}-${each.key}")
   parent_id = var.resource_group_id
   type      = each.value.type
+
+  # Disable schema validation to prevent false positives with dynamic configurations
+  schema_validation_enabled = false
+
   body = merge(
     each.value.body,
     {

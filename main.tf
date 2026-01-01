@@ -19,6 +19,10 @@ resource "azapi_resource" "relay_namespace" {
 
   response_export_values = ["*"]
 
+  # Disable schema validation to allow identity block outside of body
+  # The identity configuration is handled via dynamic blocks below
+  schema_validation_enabled = false
+
   dynamic "identity" {
     for_each = local.managed_identities.system_assigned_user_assigned
 
