@@ -27,6 +27,8 @@ resource "azapi_resource" "private_endpoints" {
       properties = merge(
         each.value.body.properties,
         {
+          # Configure private link service connections with the "namespace" group ID
+          # This is the subresource type for Azure Relay namespace private endpoints
           privateLinkServiceConnections = [
             for conn in try(each.value.body.properties.privateLinkServiceConnections, []) : merge(
               conn,
