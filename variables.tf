@@ -6,20 +6,18 @@ variable "location" {
 
 variable "name" {
   type        = string
-  description = "The name of the this resource."
+  description = "The name of the Azure Relay namespace."
 
   validation {
-    condition     = can(regex("TODO", var.name))
-    error_message = "The name must be TODO." # TODO remove the example below once complete:
-    #condition     = can(regex("^[a-z0-9]{5,50}$", var.name))
-    #error_message = "The name must be between 5 and 50 characters long and can only contain lowercase letters and numbers."
+    condition     = can(regex("^[a-zA-Z][a-zA-Z0-9-]{4,48}[a-zA-Z0-9]$", var.name))
+    error_message = "The name must be between 6 and 50 characters long, start with a letter, end with a letter or number, and can only contain letters, numbers, and hyphens."
   }
 }
 
 # This is required for most resource modules
-variable "resource_group_name" {
+variable "resource_group_id" {
   type        = string
-  description = "The resource group where the resources will be deployed."
+  description = "The resource ID of the resource group where the Relay namespace will be deployed."
 }
 
 # required AVM interfaces
@@ -99,6 +97,41 @@ For more information see <https://aka.ms/avm/telemetryinfo>.
 If it is set to false, then no telemetry will be collected.
 DESCRIPTION
   nullable    = false
+}
+
+variable "public_network_access" {
+  type        = string
+  default     = "Enabled"
+  description = "Controls access to the Relay namespace via public network. Possible values are 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
+  nullable    = false
+
+  validation {
+    condition     = contains(["Enabled", "Disabled", "SecuredByPerimeter"], var.public_network_access)
+    error_message = "The public_network_access must be one of: 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
+  }
+}
+
+variable "sku" {
+  type = object({
+    name = string
+    tier = string
+  })
+  default = {
+    name = "Standard"
+    tier = "Standard"
+  }
+  description = <<DESCRIPTION
+The SKU of the Azure Relay namespace. The following properties can be specified:
+
+- `name` - (Required) The name of the SKU. Possible value is 'Standard'.
+- `tier` - (Required) The tier of the SKU. Possible value is 'Standard'.
+DESCRIPTION
+  nullable    = false
+
+  validation {
+    condition     = var.sku.name == "Standard" && var.sku.tier == "Standard"
+    error_message = "The SKU name and tier must both be 'Standard'."
+  }
 }
 
 variable "lock" {
