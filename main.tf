@@ -13,39 +13,13 @@ resource "azapi_resource" "relay_namespace" {
       tier = var.sku.tier
     }
   }
-  create_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  delete_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  read_headers           = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  response_export_values = ["*"]
-  # Disable schema validation to allow identity block outside of body
-  # The identity configuration is handled via dynamic blocks below
-  schema_validation_enabled = false
+  create_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  read_headers              = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  response_export_values    = ["*"]
+  schema_validation_enabled = true
   tags                      = var.tags
   update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-
-  dynamic "identity" {
-    for_each = local.managed_identities.system_assigned_user_assigned
-
-    content {
-      type         = identity.value.type
-      identity_ids = identity.value.user_assigned_resource_ids
-    }
-  }
-  dynamic "identity" {
-    for_each = local.managed_identities.system_assigned
-
-    content {
-      type = identity.value.type
-    }
-  }
-  dynamic "identity" {
-    for_each = local.managed_identities.user_assigned
-
-    content {
-      type         = identity.value.type
-      identity_ids = identity.value.user_assigned_resource_ids
-    }
-  }
 }
 
 # required AVM resources interfaces
