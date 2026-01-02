@@ -1,3 +1,6 @@
+# Data source for current client config
+data "azapi_client_config" "current" {}
+
 # Azure Relay Namespace
 resource "azapi_resource" "relay_namespace" {
   type      = "Microsoft.Relay/namespaces@2024-01-01"
@@ -55,62 +58,106 @@ resource "azapi_resource" "relay_namespace" {
 }
 
 # required AVM resources interfaces
-resource "azurerm_management_lock" "this" {
+resource "azapi_resource" "management_lock" {
   count = var.lock != null ? 1 : 0
 
-  lock_level = var.lock.kind
-  name       = coalesce(var.lock.name, "lock-${var.lock.kind}")
-  scope      = azapi_resource.relay_namespace.id
-  notes      = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
+  type      = "Microsoft.Authorization/locks@2020-05-01"
+  name      = coalesce(var.lock.name, "lock-${var.lock.kind}")
+  parent_id = azapi_resource.relay_namespace.id
+
+  body = {
+    properties = {
+      level = var.lock.kind
+      notes = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
+    }
+  }
+
+  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  update_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }
 
-resource "azurerm_role_assignment" "this" {
+# Data source to resolve role definition names to IDs
+data "azurerm_role_definition" "this" {
+  for_each = {
+    for k, v in var.role_assignments : k => v
+    if !strcontains(lower(v.role_definition_id_or_name), lower(local.role_definition_resource_substring))
+  }
+
+  name  = each.value.role_definition_id_or_name
+  scope = azapi_resource.relay_namespace.id
+}
+
+resource "azapi_resource" "role_assignment" {
   for_each = var.role_assignments
 
-  principal_id                           = each.value.principal_id
-  scope                                  = azapi_resource.relay_namespace.id
-  condition                              = each.value.condition
-  condition_version                      = each.value.condition_version
-  delegated_managed_identity_resource_id = each.value.delegated_managed_identity_resource_id
-  principal_type                         = each.value.principal_type
-  role_definition_id                     = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? each.value.role_definition_id_or_name : null
-  role_definition_name                   = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? null : each.value.role_definition_id_or_name
-  skip_service_principal_aad_check       = each.value.skip_service_principal_aad_check
+  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
+  name      = uuidv5("url", "${azapi_resource.relay_namespace.id}-${each.key}")
+  parent_id = azapi_resource.relay_namespace.id
+
+  body = {
+    properties = merge(
+      {
+        principalId      = each.value.principal_id
+        roleDefinitionId = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? each.value.role_definition_id_or_name : data.azurerm_role_definition.this[each.key].id
+      },
+      each.value.description != null ? { description = each.value.description } : {},
+      each.value.principal_type != null ? { principalType = each.value.principal_type } : {},
+      each.value.condition != null ? { condition = each.value.condition } : {},
+      each.value.condition_version != null ? { conditionVersion = each.value.condition_version } : {},
+      each.value.delegated_managed_identity_resource_id != null ? { delegatedManagedIdentityResourceId = each.value.delegated_managed_identity_resource_id } : {}
+    )
+  }
+
+  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  update_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }
 
-resource "azurerm_monitor_diagnostic_setting" "this" {
+resource "azapi_resource" "diagnostic_setting" {
   for_each = var.diagnostic_settings
 
-  name                           = each.value.name != null ? each.value.name : "diag-${var.name}"
-  target_resource_id             = azapi_resource.relay_namespace.id
-  eventhub_authorization_rule_id = each.value.event_hub_authorization_rule_resource_id
-  eventhub_name                  = each.value.event_hub_name
-  log_analytics_destination_type = each.value.log_analytics_destination_type
-  log_analytics_workspace_id     = each.value.workspace_resource_id
-  partner_solution_id            = each.value.marketplace_partner_resource_id
-  storage_account_id             = each.value.storage_account_resource_id
+  type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
+  name      = each.value.name != null ? each.value.name : "diag-${var.name}"
+  parent_id = azapi_resource.relay_namespace.id
 
-  dynamic "enabled_log" {
-    for_each = each.value.log_categories
-
-    content {
-      category = enabled_log.value
-    }
+  body = {
+    properties = merge(
+      {
+        logs = concat(
+          [
+            for category in each.value.log_categories : {
+              category = category
+              enabled  = true
+            }
+          ],
+          [
+            for group in each.value.log_groups : {
+              categoryGroup = group
+              enabled       = true
+            }
+          ]
+        )
+        metrics = [
+          for category in each.value.metric_categories : {
+            category = category
+            enabled  = true
+          }
+        ]
+      },
+      each.value.workspace_resource_id != null ? { workspaceId = each.value.workspace_resource_id } : {},
+      each.value.storage_account_resource_id != null ? { storageAccountId = each.value.storage_account_resource_id } : {},
+      each.value.event_hub_authorization_rule_resource_id != null ? { eventHubAuthorizationRuleId = each.value.event_hub_authorization_rule_resource_id } : {},
+      each.value.event_hub_name != null ? { eventHubName = each.value.event_hub_name } : {},
+      each.value.marketplace_partner_resource_id != null ? { marketplacePartnerId = each.value.marketplace_partner_resource_id } : {},
+      each.value.log_analytics_destination_type != null ? { logAnalyticsDestinationType = each.value.log_analytics_destination_type } : {}
+    )
   }
 
-  dynamic "enabled_log" {
-    for_each = each.value.log_groups
-
-    content {
-      category_group = enabled_log.value
-    }
-  }
-
-  dynamic "metric" {
-    for_each = each.value.metric_categories
-
-    content {
-      category = metric.value
-    }
-  }
+  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  update_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }
