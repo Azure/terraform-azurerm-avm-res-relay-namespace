@@ -17,10 +17,6 @@ resource "azapi_resource" "private_endpoints" {
   name      = coalesce(local.private_endpoints[each.key].name, "pe-${var.name}-${each.key}")
   parent_id = var.resource_group_id
   type      = each.value.type
-
-  # Disable schema validation to prevent false positives with dynamic configurations
-  schema_validation_enabled = false
-
   body = merge(
     each.value.body,
     {
@@ -50,6 +46,8 @@ resource "azapi_resource" "private_endpoints" {
   delete_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   read_headers           = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   response_export_values = ["properties.networkInterfaces"]
-  tags                   = each.value.tags
-  update_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  # Disable schema validation to prevent false positives with dynamic configurations
+  schema_validation_enabled = false
+  tags                      = each.value.tags
+  update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }

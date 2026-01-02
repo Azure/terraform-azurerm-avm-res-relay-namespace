@@ -1,8 +1,7 @@
 resource "azapi_resource" "wcf_relay" {
-  type      = "Microsoft.Relay/namespaces/wcfRelays@2024-01-01"
   name      = var.name
   parent_id = var.relay_namespace_id
-
+  type      = "Microsoft.Relay/namespaces/wcfRelays@2024-01-01"
   body = {
     properties = {
       relayType                   = var.relay_type
@@ -11,7 +10,6 @@ resource "azapi_resource" "wcf_relay" {
       userMetadata                = var.user_metadata
     }
   }
-
   create_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
   delete_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
   read_headers   = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null

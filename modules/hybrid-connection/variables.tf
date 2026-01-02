@@ -13,6 +13,18 @@ variable "relay_namespace_id" {
   description = "The resource ID of the parent Relay namespace."
 }
 
+variable "avm_azapi_header" {
+  type        = string
+  default     = ""
+  description = "The AVM AzAPI header value to use for telemetry."
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = false
+  description = "Controls whether telemetry is enabled for the submodule."
+}
+
 variable "requires_client_authorization" {
   type        = bool
   default     = true
@@ -23,16 +35,4 @@ variable "user_metadata" {
   type        = string
   default     = null
   description = "The user metadata associated with the hybrid connection."
-}
-
-variable "enable_telemetry" {
-  type        = bool
-  default     = false
-  description = "Controls whether telemetry is enabled for the submodule."
-}
-
-variable "avm_azapi_header" {
-  type        = string
-  default     = ""
-  description = "The AVM AzAPI header value to use for telemetry."
 }

@@ -3,6 +3,12 @@ variable "relay_namespace_id" {
   description = "The resource ID of the parent Relay namespace."
 }
 
+variable "avm_azapi_header" {
+  type        = string
+  default     = ""
+  description = "The AVM AzAPI header value to use for telemetry."
+}
+
 variable "default_action" {
   type        = string
   default     = "Allow"
@@ -12,6 +18,21 @@ variable "default_action" {
     condition     = contains(["Allow", "Deny"], var.default_action)
     error_message = "The default_action must be either 'Allow' or 'Deny'."
   }
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = false
+  description = "Controls whether telemetry is enabled for the submodule."
+}
+
+variable "ip_rules" {
+  type = list(object({
+    ipMask = string
+    action = optional(string, "Allow")
+  }))
+  default     = []
+  description = "List of IP rules. Each rule must contain an ipMask and optionally an action (default: Allow)."
 }
 
 variable "public_network_access" {
@@ -25,29 +46,8 @@ variable "public_network_access" {
   }
 }
 
-variable "ip_rules" {
-  type = list(object({
-    ipMask = string
-    action = optional(string, "Allow")
-  }))
-  default     = []
-  description = "List of IP rules. Each rule must contain an ipMask and optionally an action (default: Allow)."
-}
-
 variable "trusted_service_access_enabled" {
   type        = bool
   default     = false
   description = "Whether to enable trusted Azure service access."
-}
-
-variable "enable_telemetry" {
-  type        = bool
-  default     = false
-  description = "Controls whether telemetry is enabled for the submodule."
-}
-
-variable "avm_azapi_header" {
-  type        = string
-  default     = ""
-  description = "The AVM AzAPI header value to use for telemetry."
 }

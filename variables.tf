@@ -99,41 +99,6 @@ DESCRIPTION
   nullable    = false
 }
 
-variable "public_network_access" {
-  type        = string
-  default     = "Enabled"
-  description = "Controls access to the Relay namespace via public network. Possible values are 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
-  nullable    = false
-
-  validation {
-    condition     = contains(["Enabled", "Disabled", "SecuredByPerimeter"], var.public_network_access)
-    error_message = "The public_network_access must be one of: 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
-  }
-}
-
-variable "sku" {
-  type = object({
-    name = string
-    tier = string
-  })
-  default = {
-    name = "Standard"
-    tier = "Standard"
-  }
-  description = <<DESCRIPTION
-The SKU of the Azure Relay namespace. The following properties can be specified:
-
-- `name` - (Required) The name of the SKU. Possible value is 'Standard'.
-- `tier` - (Required) The tier of the SKU. Possible value is 'Standard'.
-DESCRIPTION
-  nullable    = false
-
-  validation {
-    condition     = var.sku.name == "Standard" && var.sku.tier == "Standard"
-    error_message = "The SKU name and tier must both be 'Standard'."
-  }
-}
-
 variable "lock" {
   type = object({
     kind = string
@@ -233,6 +198,18 @@ variable "private_endpoints_manage_dns_zone_group" {
   nullable    = false
 }
 
+variable "public_network_access" {
+  type        = string
+  default     = "Enabled"
+  description = "Controls access to the Relay namespace via public network. Possible values are 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
+  nullable    = false
+
+  validation {
+    condition     = contains(["Enabled", "Disabled", "SecuredByPerimeter"], var.public_network_access)
+    error_message = "The public_network_access must be one of: 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
+  }
+}
+
 variable "role_assignments" {
   type = map(object({
     role_definition_id_or_name             = string
@@ -260,6 +237,29 @@ A map of role assignments to create on this resource. The map key is deliberatel
 > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
 DESCRIPTION
   nullable    = false
+}
+
+variable "sku" {
+  type = object({
+    name = string
+    tier = string
+  })
+  default = {
+    name = "Standard"
+    tier = "Standard"
+  }
+  description = <<DESCRIPTION
+The SKU of the Azure Relay namespace. The following properties can be specified:
+
+- `name` - (Required) The name of the SKU. Possible value is 'Standard'.
+- `tier` - (Required) The tier of the SKU. Possible value is 'Standard'.
+DESCRIPTION
+  nullable    = false
+
+  validation {
+    condition     = var.sku.name == "Standard" && var.sku.tier == "Standard"
+    error_message = "The SKU name and tier must both be 'Standard'."
+  }
 }
 
 # tflint-ignore: terraform_unused_declarations

@@ -56,13 +56,11 @@ resource "azurerm_resource_group" "this" {
 module "relay_namespace" {
   source = "../../"
 
-  location          = azurerm_resource_group.this.location
-  name              = module.naming.relay_namespace.name_unique
-  resource_group_id = azurerm_resource_group.this.id
-  enable_telemetry  = var.enable_telemetry
-
+  location              = azurerm_resource_group.this.location
+  name                  = module.naming.relay_namespace.name_unique
+  resource_group_id     = azurerm_resource_group.this.id
+  enable_telemetry      = var.enable_telemetry
   public_network_access = "Enabled"
-
   sku = {
     name = "Standard"
     tier = "Standard"
@@ -104,15 +102,14 @@ module "wcf_relay" {
 module "network_rule_set" {
   source = "../../modules/network-rule-set"
 
-  relay_namespace_id             = module.relay_namespace.resource_id
-  default_action                 = "Deny"
-  public_network_access          = "Enabled"
-  trusted_service_access_enabled = true
-
+  relay_namespace_id = module.relay_namespace.resource_id
+  default_action     = "Deny"
   ip_rules = [
     {
       ipMask = "10.0.0.0/24"
       action = "Allow"
     }
   ]
+  public_network_access          = "Enabled"
+  trusted_service_access_enabled = true
 }

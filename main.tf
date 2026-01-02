@@ -3,11 +3,10 @@ data "azapi_client_config" "current" {}
 
 # Azure Relay Namespace
 resource "azapi_resource" "relay_namespace" {
-  type      = "Microsoft.Relay/namespaces@2024-01-01"
-  name      = var.name
   location  = var.location
+  name      = var.name
   parent_id = var.resource_group_id
-
+  type      = "Microsoft.Relay/namespaces@2024-01-01"
   body = {
     properties = {
       publicNetworkAccess = var.public_network_access
@@ -17,14 +16,15 @@ resource "azapi_resource" "relay_namespace" {
       tier = var.sku.tier
     }
   }
-
-  tags = var.tags
-
+  create_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  delete_headers         = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+  read_headers           = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   response_export_values = ["*"]
-
   # Disable schema validation to allow identity block outside of body
   # The identity configuration is handled via dynamic blocks below
   schema_validation_enabled = false
+  tags                      = var.tags
+  update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 
   dynamic "identity" {
     for_each = local.managed_identities.system_assigned_user_assigned
@@ -34,7 +34,6 @@ resource "azapi_resource" "relay_namespace" {
       identity_ids = identity.value.user_assigned_resource_ids
     }
   }
-
   dynamic "identity" {
     for_each = local.managed_identities.system_assigned
 
@@ -42,7 +41,6 @@ resource "azapi_resource" "relay_namespace" {
       type = identity.value.type
     }
   }
-
   dynamic "identity" {
     for_each = local.managed_identities.user_assigned
 
@@ -51,27 +49,21 @@ resource "azapi_resource" "relay_namespace" {
       identity_ids = identity.value.user_assigned_resource_ids
     }
   }
-  create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
-  update_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
 }
 
 # required AVM resources interfaces
 resource "azapi_resource" "management_lock" {
   count = var.lock != null ? 1 : 0
 
-  type      = "Microsoft.Authorization/locks@2020-05-01"
   name      = coalesce(var.lock.name, "lock-${var.lock.kind}")
   parent_id = azapi_resource.relay_namespace.id
-
+  type      = "Microsoft.Authorization/locks@2020-05-01"
   body = {
     properties = {
       level = var.lock.kind
       notes = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
     }
   }
-
   create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
@@ -92,10 +84,9 @@ data "azurerm_role_definition" "this" {
 resource "azapi_resource" "role_assignment" {
   for_each = var.role_assignments
 
-  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
   name      = uuidv5("url", "${azapi_resource.relay_namespace.id}-${each.key}")
   parent_id = azapi_resource.relay_namespace.id
-
+  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
   body = {
     properties = merge(
       {
@@ -109,7 +100,6 @@ resource "azapi_resource" "role_assignment" {
       each.value.delegated_managed_identity_resource_id != null ? { delegatedManagedIdentityResourceId = each.value.delegated_managed_identity_resource_id } : {}
     )
   }
-
   create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
@@ -119,10 +109,9 @@ resource "azapi_resource" "role_assignment" {
 resource "azapi_resource" "diagnostic_setting" {
   for_each = var.diagnostic_settings
 
-  type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
   name      = each.value.name != null ? each.value.name : "diag-${var.name}"
   parent_id = azapi_resource.relay_namespace.id
-
+  type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
   body = {
     properties = merge(
       {
@@ -155,7 +144,6 @@ resource "azapi_resource" "diagnostic_setting" {
       each.value.log_analytics_destination_type != null ? { logAnalyticsDestinationType = each.value.log_analytics_destination_type } : {}
     )
   }
-
   create_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   delete_headers = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
   read_headers   = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null

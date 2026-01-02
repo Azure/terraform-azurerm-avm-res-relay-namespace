@@ -21,21 +21,20 @@ variable "rights" {
     condition     = alltrue([for right in var.rights : contains(["Listen", "Send", "Manage"], right)])
     error_message = "Each right must be one of: 'Listen', 'Send', or 'Manage'."
   }
-
   validation {
     condition     = length(var.rights) > 0
     error_message = "At least one right must be specified."
   }
 }
 
-variable "enable_telemetry" {
-  type        = bool
-  default     = false
-  description = "Controls whether telemetry is enabled for the submodule."
-}
-
 variable "avm_azapi_header" {
   type        = string
   default     = ""
   description = "The AVM AzAPI header value to use for telemetry."
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = false
+  description = "Controls whether telemetry is enabled for the submodule."
 }
