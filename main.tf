@@ -1,6 +1,3 @@
-# Data source for current client config
-data "azapi_client_config" "current" {}
-
 # Azure Relay Namespace
 resource "azapi_resource" "relay_namespace" {
   location  = var.location
