@@ -37,6 +37,7 @@ module "relay_namespace" {
   enable_telemetry  = true
 
   public_network_access = "Enabled"
+
   sku = {
     name = "Standard"
     tier = "Standard"
@@ -339,10 +340,6 @@ Default: `null`
 ## Outputs
 
 The following outputs are exported:
-
-### <a name="output_identity"></a> [identity](#output\_identity)
-
-Description: The managed identity of the Relay namespace.
 
 ### <a name="output_location"></a> [location](#output\_location)
 

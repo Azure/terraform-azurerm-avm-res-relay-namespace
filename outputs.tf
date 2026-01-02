@@ -1,8 +1,3 @@
-output "identity" {
-  description = "The managed identity of the Relay namespace."
-  value       = azapi_resource.relay_namespace.identity
-}
-
 output "location" {
   description = "The location of the Relay namespace."
   value       = azapi_resource.relay_namespace.location
