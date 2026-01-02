@@ -7,12 +7,10 @@ This is a Terraform Azure Verified Module for creating and managing Azure Relay 
 ## Features
 
 - Creates Azure Relay namespaces with Standard SKU
-- Supports managed identities (system-assigned and user-assigned)
 - Private endpoint support
 - Diagnostic settings integration
 - Role-based access control (RBAC)
 - Management locks
-- Customer-managed keys (CMK) support
 - Comprehensive tagging support
 
 ## Submodules
