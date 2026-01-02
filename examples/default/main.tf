@@ -52,6 +52,22 @@ resource "azurerm_resource_group" "this" {
   name     = module.naming.resource_group.name_unique
 }
 
+# Create a Log Analytics workspace for diagnostic settings using azapi
+resource "azapi_resource" "log_analytics" {
+  location  = azurerm_resource_group.this.location
+  name      = module.naming.log_analytics_workspace.name_unique
+  parent_id = azurerm_resource_group.this.id
+  type      = "Microsoft.OperationalInsights/workspaces@2023-09-01"
+  body = {
+    properties = {
+      retentionInDays = 30
+      sku = {
+        name = "PerGB2018"
+      }
+    }
+  }
+}
+
 # This is the module call
 # Do not specify location here due to the randomization above.
 # Leaving location as `null` will cause the module to use the resource group location
@@ -64,5 +80,13 @@ module "test" {
   location          = azurerm_resource_group.this.location
   name              = module.naming.relay_namespace.name_unique
   resource_group_id = azurerm_resource_group.this.id
-  enable_telemetry  = var.enable_telemetry # see variables.tf
+  diagnostic_settings = {
+    diag1 = {
+      name                  = "diag-${module.naming.relay_namespace.name_unique}"
+      workspace_resource_id = azapi_resource.log_analytics.id
+      log_groups            = ["allLogs"]
+      metric_categories     = ["AllMetrics"]
+    }
+  }
+  enable_telemetry = var.enable_telemetry # see variables.tf
 }
