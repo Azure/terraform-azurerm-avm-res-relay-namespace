@@ -6,43 +6,18 @@ variable "location" {
 
 variable "name" {
   type        = string
-  description = "The name of the this resource."
+  description = "The name of the Azure Relay namespace."
 
   validation {
-    condition     = can(regex("TODO", var.name))
-    error_message = "The name must be TODO." # TODO remove the example below once complete:
-    #condition     = can(regex("^[a-z0-9]{5,50}$", var.name))
-    #error_message = "The name must be between 5 and 50 characters long and can only contain lowercase letters and numbers."
+    condition     = can(regex("^[a-zA-Z][a-zA-Z0-9-]{4,48}[a-zA-Z0-9]$", var.name))
+    error_message = "The name must be between 6 and 50 characters long, start with a letter, end with a letter or number, and can only contain letters, numbers, and hyphens."
   }
 }
 
 # This is required for most resource modules
-variable "resource_group_name" {
+variable "resource_group_id" {
   type        = string
-  description = "The resource group where the resources will be deployed."
-}
-
-# required AVM interfaces
-# remove only if not supported by the resource
-# tflint-ignore: terraform_unused_declarations
-variable "customer_managed_key" {
-  type = object({
-    key_vault_resource_id = string
-    key_name              = string
-    key_version           = optional(string, null)
-    user_assigned_identity = optional(object({
-      resource_id = string
-    }), null)
-  })
-  default     = null
-  description = <<DESCRIPTION
-A map describing customer-managed keys to associate with the resource. This includes the following properties:
-- `key_vault_resource_id` - The resource ID of the Key Vault where the key is stored.
-- `key_name` - The name of the key.
-- `key_version` - (Optional) The version of the key. If not specified, the latest version is used.
-- `user_assigned_identity` - (Optional) An object representing a user-assigned identity with the following properties:
-  - `resource_id` - The resource ID of the user-assigned identity.
-DESCRIPTION
+  description = "The resource ID of the resource group where the Relay namespace will be deployed."
 }
 
 variable "diagnostic_settings" {
@@ -120,22 +95,6 @@ DESCRIPTION
   }
 }
 
-# tflint-ignore: terraform_unused_declarations
-variable "managed_identities" {
-  type = object({
-    system_assigned            = optional(bool, false)
-    user_assigned_resource_ids = optional(set(string), [])
-  })
-  default     = {}
-  description = <<DESCRIPTION
-Controls the Managed Identity configuration on this resource. The following properties can be specified:
-
-- `system_assigned` - (Optional) Specifies if the System Assigned Managed Identity should be enabled.
-- `user_assigned_resource_ids` - (Optional) Specifies a list of User Assigned Managed Identity resource IDs to be assigned to this resource.
-DESCRIPTION
-  nullable    = false
-}
-
 variable "private_endpoints" {
   type = map(object({
     name = optional(string, null)
@@ -147,6 +106,7 @@ variable "private_endpoints" {
       condition                              = optional(string, null)
       condition_version                      = optional(string, null)
       delegated_managed_identity_resource_id = optional(string, null)
+      principal_type                         = optional(string, null)
     })), {})
     lock = optional(object({
       kind = string
@@ -200,6 +160,18 @@ variable "private_endpoints_manage_dns_zone_group" {
   nullable    = false
 }
 
+variable "public_network_access" {
+  type        = string
+  default     = "Enabled"
+  description = "Controls access to the Relay namespace via public network. Possible values are 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
+  nullable    = false
+
+  validation {
+    condition     = contains(["Enabled", "Disabled", "SecuredByPerimeter"], var.public_network_access)
+    error_message = "The public_network_access must be one of: 'Enabled', 'Disabled', or 'SecuredByPerimeter'."
+  }
+}
+
 variable "role_assignments" {
   type = map(object({
     role_definition_id_or_name             = string
@@ -227,6 +199,29 @@ A map of role assignments to create on this resource. The map key is deliberatel
 > Note: only set `skip_service_principal_aad_check` to true if you are assigning a role to a service principal.
 DESCRIPTION
   nullable    = false
+}
+
+variable "sku" {
+  type = object({
+    name = string
+    tier = string
+  })
+  default = {
+    name = "Standard"
+    tier = "Standard"
+  }
+  description = <<DESCRIPTION
+The SKU of the Azure Relay namespace. The following properties can be specified:
+
+- `name` - (Required) The name of the SKU. Possible value is 'Standard'.
+- `tier` - (Required) The tier of the SKU. Possible value is 'Standard'.
+DESCRIPTION
+  nullable    = false
+
+  validation {
+    condition     = var.sku.name == "Standard" && var.sku.tier == "Standard"
+    error_message = "The SKU name and tier must both be 'Standard'."
+  }
 }
 
 # tflint-ignore: terraform_unused_declarations
