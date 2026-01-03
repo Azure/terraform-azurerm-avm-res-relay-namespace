@@ -3,7 +3,7 @@ resource "azapi_update_resource" "authorization_rule" {
   type        = "Microsoft.Relay/namespaces/authorizationRules@2024-01-01"
   body = {
     properties = {
-      rights = var.rights
+      rights = sort(var.rights)
     }
   }
   read_headers   = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
