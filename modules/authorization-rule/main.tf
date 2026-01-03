@@ -8,10 +8,4 @@ resource "azapi_update_resource" "authorization_rule" {
   }
   read_headers   = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
   update_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
-
-  lifecycle {
-    ignore_changes = [
-      body.properties.rights,
-    ]
-  }
 }
