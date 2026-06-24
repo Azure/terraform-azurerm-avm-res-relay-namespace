@@ -20,6 +20,12 @@ resource "azapi_resource" "relay_namespace" {
   schema_validation_enabled = true
   tags                      = var.tags
   update_headers            = var.enable_telemetry ? { "User-Agent" : local.avm_azapi_header } : null
+
+  lifecycle {
+    ignore_changes = [
+      output,
+    ]
+  }
 }
 
 # required AVM resources interfaces
