@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "WCF Relay Submodule",
+  "moduleDescription": "This submodule creates a WCF relay for an Azure Relay namespace.",
+  "canonicalType": "Microsoft.Relay/namespaces/wcfRelays",
+  "telemetryIdPrefix": "46d3xtrf.res.f172d5d"
+}
