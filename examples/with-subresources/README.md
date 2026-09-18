@@ -28,7 +28,7 @@ module "regions" {
   source  = "Azure/avm-utl-regions/azurerm"
   version = "0.9.2"
 
-  enable_telemetry = false
+  enable_telemetry = var.enable_telemetry
 }
 
 # This allows us to randomize the region for the resource group.
@@ -58,7 +58,7 @@ module "relay_namespace" {
   location              = azurerm_resource_group.this.location
   name                  = module.naming.relay_namespace.name_unique
   resource_group_id     = azurerm_resource_group.this.id
-  enable_telemetry      = false
+  enable_telemetry      = var.enable_telemetry
   public_network_access = "Enabled"
   sku = {
     name = "Standard"
@@ -73,7 +73,7 @@ module "auth_rule" {
   name               = "RootManageSharedAccessKey"
   relay_namespace_id = module.relay_namespace.resource_id
   rights             = ["Listen", "Send", "Manage"]
-  enable_telemetry   = false
+  enable_telemetry   = var.enable_telemetry
 }
 
 # Hybrid Connection
@@ -82,7 +82,7 @@ module "hybrid_connection" {
 
   name                          = "my-hybrid-connection"
   relay_namespace_id            = module.relay_namespace.resource_id
-  enable_telemetry              = false
+  enable_telemetry              = var.enable_telemetry
   requires_client_authorization = true
   user_metadata                 = "Example hybrid connection"
 }
@@ -94,7 +94,7 @@ module "wcf_relay" {
   name                          = "my-wcf-relay"
   relay_namespace_id            = module.relay_namespace.resource_id
   relay_type                    = "NetTcp"
-  enable_telemetry              = false
+  enable_telemetry              = var.enable_telemetry
   requires_client_authorization = true
   requires_transport_security   = true
   user_metadata                 = "Example WCF relay"
@@ -106,7 +106,7 @@ module "network_rule_set" {
 
   relay_namespace_id = module.relay_namespace.resource_id
   default_action     = "Deny"
-  enable_telemetry   = false
+  enable_telemetry   = var.enable_telemetry
   ip_rules = [
     {
       ipMask = "10.0.0.0/24"
@@ -153,7 +153,7 @@ If it is set to false, then no telemetry will be collected.
 
 Type: `bool`
 
-Default: `true`
+Default: `false`
 
 ## Outputs
 
