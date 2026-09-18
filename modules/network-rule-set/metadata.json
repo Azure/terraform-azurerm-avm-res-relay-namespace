@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/azure-verified-modules-tools/main/src/Avm.Authoring/Resources/Schemas/v1/avm-module-metadata.schema.json",
+  "moduleDisplayName": "Network Rule Set Submodule",
+  "moduleDescription": "This submodule creates a network rule set for an Azure Relay namespace.",
+  "canonicalType": "Microsoft.Relay/namespaces/networkRuleSets",
+  "telemetryIdPrefix": "46d3xtrf.res.10a2a26"
+}
