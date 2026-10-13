@@ -3,7 +3,7 @@ resource "azapi_resource" "relay_namespace" {
   location  = var.location
   name      = var.name
   parent_id = var.resource_group_id
-  type      = "Microsoft.Relay/namespaces@2024-01-01"
+  type      = var.resource_types.relay_namespaces
   body = {
     properties = {
       publicNetworkAccess = var.public_network_access
@@ -13,9 +13,21 @@ resource "azapi_resource" "relay_namespace" {
       tier = var.sku.tier
     }
   }
+  ignore_body_changes       = length(var.ignore_body_changes.relay_namespaces) > 0 ? var.ignore_body_changes.relay_namespaces : null
   response_export_values    = ["*"]
+  retry                     = var.retry
   schema_validation_enabled = true
   tags                      = var.tags
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 }
 
 # required AVM resources interfaces
@@ -24,13 +36,34 @@ resource "azapi_resource" "management_lock" {
 
   name      = coalesce(var.lock.name, "lock-${var.lock.kind}")
   parent_id = azapi_resource.relay_namespace.id
-  type      = "Microsoft.Authorization/locks@2020-05-01"
+  type      = var.resource_types.authorization_locks
   body = {
     properties = {
       level = var.lock.kind
-      notes = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
+      notes = coalesce(var.lock.notes, var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources.")
     }
   }
+  ignore_body_changes    = length(var.ignore_body_changes.authorization_locks) > 0 ? var.ignore_body_changes.authorization_locks : null
+  response_export_values = []
+  retry                  = var.retry
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
+
+  depends_on = [
+    azapi_resource.diagnostic_setting,
+    azapi_resource.role_assignment,
+    azapi_resource.private_dns_zone_groups,
+    azapi_resource.private_endpoint_role_assignments,
+    azapi_resource.private_endpoint_locks,
+  ]
 }
 
 # Data source to resolve role definition names to IDs
@@ -49,7 +82,7 @@ resource "azapi_resource" "role_assignment" {
 
   name      = uuidv5("url", "${azapi_resource.relay_namespace.id}-${each.key}")
   parent_id = azapi_resource.relay_namespace.id
-  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
+  type      = var.resource_types.authorization_role_assignments
   body = {
     properties = merge(
       {
@@ -63,6 +96,19 @@ resource "azapi_resource" "role_assignment" {
       each.value.delegated_managed_identity_resource_id != null ? { delegatedManagedIdentityResourceId = each.value.delegated_managed_identity_resource_id } : {}
     )
   }
+  ignore_body_changes    = length(var.ignore_body_changes.authorization_role_assignments) > 0 ? var.ignore_body_changes.authorization_role_assignments : null
+  response_export_values = []
+  retry                  = var.retry
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 }
 
 resource "azapi_resource" "diagnostic_setting" {
@@ -70,7 +116,7 @@ resource "azapi_resource" "diagnostic_setting" {
 
   name      = each.value.name != null ? each.value.name : "diag-${var.name}"
   parent_id = azapi_resource.relay_namespace.id
-  type      = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
+  type      = var.resource_types.insights_diagnostic_settings
   body = {
     properties = merge(
       {
@@ -102,5 +148,18 @@ resource "azapi_resource" "diagnostic_setting" {
       each.value.marketplace_partner_resource_id != null ? { marketplacePartnerId = each.value.marketplace_partner_resource_id } : {},
       each.value.log_analytics_destination_type != null ? { logAnalyticsDestinationType = each.value.log_analytics_destination_type } : {}
     )
+  }
+  ignore_body_changes    = length(var.ignore_body_changes.insights_diagnostic_settings) > 0 ? var.ignore_body_changes.insights_diagnostic_settings : null
+  response_export_values = []
+  retry                  = var.retry
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
   }
 }

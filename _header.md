@@ -20,6 +20,18 @@ This module includes submodules for managing Relay namespace child resources:
 - **network-rule-set**: Configure network access rules and IP restrictions
 - **wcf-relay**: Create and manage WCF relays
 
+## Private endpoints
+
+Private endpoints retain the existing `pe-<namespace>-<key>` default names and use the `namespace` connection group. Supply a full resource group ID in `private_endpoints[*].resource_group_name` to use another resource group, and `location` to use the subnet's region. Static IP configurations default their member name to `namespace`.
+
+NIC names must be unique within a resource group. Existing generated NIC names are preserved; if two effective names collide, supply a unique `network_interface_name` on the conflicting endpoint instead of renaming an existing NIC.
+
+DNS zone groups are created only when zone IDs are supplied and `private_endpoints_manage_dns_zone_group` is true. Endpoint role assignments, lock names and lock notes are honored. An omitted endpoint lock inherits the namespace lock; set that endpoint's key to false in `private_endpoints_inherit_lock` to opt out. Endpoint tags inherit `tags` unless explicitly replaced, including with an empty map.
+
+### Upgrade note
+
+Previously ignored endpoint DNS zones, role assignments, locks, locations and resource groups now take effect. Review these existing inputs before upgrading. Namespace and endpoint resource addresses and default names are unchanged.
+
 ## Usage
 
 ### Basic Example
