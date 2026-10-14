@@ -1,36 +1,50 @@
 module "avm_interfaces" {
   source  = "Azure/avm-utl-interfaces/azure"
-  version = "0.5.0"
+  version = "0.7.0"
 
-  enable_telemetry                        = var.enable_telemetry
-  lock                                    = var.lock
-  private_endpoints                       = local.private_endpoints
+  enable_telemetry = var.enable_telemetry
+  lock             = var.lock
+  # The service is wired below; it must not change the helper's legacy NIC and connection names.
+  private_endpoints = {
+    for key, endpoint in local.private_endpoints : key => merge(endpoint, {
+      subresource_name = null
+    })
+  }
   private_endpoints_manage_dns_zone_group = var.private_endpoints_manage_dns_zone_group
   private_endpoints_scope                 = azapi_resource.relay_namespace.id
+  role_assignment_definition_scope        = azapi_resource.relay_namespace.id
   role_assignments                        = var.role_assignments
 }
 
 resource "azapi_resource" "private_endpoints" {
   for_each = module.avm_interfaces.private_endpoints_azapi
 
-  location  = azapi_resource.relay_namespace.location
+  location  = coalesce(local.private_endpoints[each.key].location, azapi_resource.relay_namespace.location)
   name      = coalesce(local.private_endpoints[each.key].name, "pe-${var.name}-${each.key}")
-  parent_id = var.resource_group_id
-  type      = each.value.type
+  parent_id = coalesce(local.private_endpoints[each.key].resource_group_name, var.resource_group_id)
+  type      = var.resource_types.network_private_endpoints
   body = merge(
     each.value.body,
     {
       properties = merge(
         each.value.body.properties,
         {
-          # Configure private link service connections with the "namespace" group ID
-          # This is the subresource type for Azure Relay namespace private endpoints
+          ipConfigurations = [
+            for configuration in local.private_endpoints[each.key].ip_configurations : {
+              name = configuration.name
+              properties = {
+                privateIPAddress = configuration.private_ip_address
+                groupId          = "namespace"
+                memberName       = coalesce(configuration.member_name, "namespace")
+              }
+            }
+          ]
           privateLinkServiceConnections = [
-            for conn in try(each.value.body.properties.privateLinkServiceConnections, []) : merge(
+            for conn in each.value.body.properties.privateLinkServiceConnections : merge(
               conn,
               {
                 properties = merge(
-                  try(conn.properties, {}),
+                  conn.properties,
                   {
                     groupIds = ["namespace"]
                   }
@@ -42,8 +56,130 @@ resource "azapi_resource" "private_endpoints" {
       )
     }
   )
+  ignore_body_changes = length(var.ignore_body_changes.network_private_endpoints) > 0 ? var.ignore_body_changes.network_private_endpoints : null
+  replace_triggers_refs = [
+    "properties.subnet.id",
+    "properties.privateLinkServiceConnections",
+    "properties.customNetworkInterfaceName",
+    "properties.ipConfigurations",
+  ]
   response_export_values = ["properties.networkInterfaces"]
-  # Disable schema validation to prevent false positives with dynamic configurations
-  schema_validation_enabled = false
-  tags                      = each.value.tags
+  retry                  = var.retry
+  tags                   = each.value.tags
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition     = local.private_endpoints[each.key].subresource_name == null || local.private_endpoints[each.key].subresource_name == "namespace"
+      error_message = "Azure Relay private endpoints support only the namespace subresource."
+    }
+    precondition {
+      condition     = can(provider::azapi::parse_resource_id("Microsoft.Resources/resourceGroups", coalesce(local.private_endpoints[each.key].resource_group_name, var.resource_group_id)))
+      error_message = "Each private endpoint resource_group_name must be a resource group resource ID, or null to use the namespace resource group."
+    }
+    precondition {
+      condition     = length(distinct(local.private_endpoint_network_interface_ids)) == length(local.private_endpoint_network_interface_ids)
+      error_message = "Private endpoints in the same resource group must have unique network interface names. Set unique private_endpoints[*].network_interface_name values where generated or supplied names collide."
+    }
+  }
+}
+
+resource "azapi_resource" "private_dns_zone_groups" {
+  for_each = {
+    for key, group in module.avm_interfaces.private_dns_zone_groups_azapi : key => group
+    if length(local.private_endpoints[key].private_dns_zone_resource_ids) > 0
+  }
+
+  name      = each.value.name
+  parent_id = azapi_resource.private_endpoints[each.key].id
+  type      = var.resource_types.network_private_endpoints_private_dns_zone_groups
+  body = {
+    properties = {
+      privateDnsZoneConfigs = [
+        for id in local.private_endpoints[each.key].private_dns_zone_resource_ids : {
+          name = "zone-${uuidv5("url", id)}"
+          properties = {
+            privateDnsZoneId = id
+          }
+        }
+      ]
+    }
+  }
+  ignore_body_changes    = length(var.ignore_body_changes.network_private_endpoints_private_dns_zone_groups) > 0 ? var.ignore_body_changes.network_private_endpoints_private_dns_zone_groups : null
+  response_export_values = []
+  retry                  = var.retry
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
+}
+
+resource "azapi_resource" "private_endpoint_role_assignments" {
+  for_each = module.avm_interfaces.role_assignments_private_endpoint_azapi
+
+  name                   = each.value.name
+  parent_id              = azapi_resource.private_endpoints[each.value.pe_key].id
+  type                   = var.resource_types.authorization_role_assignments
+  body                   = each.value.body
+  ignore_body_changes    = length(var.ignore_body_changes.authorization_role_assignments) > 0 ? var.ignore_body_changes.authorization_role_assignments : null
+  response_export_values = []
+  retry                  = var.retry
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
+}
+
+resource "azapi_resource" "private_endpoint_locks" {
+  for_each = module.avm_interfaces.lock_private_endpoint_azapi
+
+  name                   = coalesce(each.value.name, "lock-${local.private_endpoints[each.value.pe_key].lock.kind}")
+  parent_id              = azapi_resource.private_endpoints[each.value.pe_key].id
+  type                   = var.resource_types.authorization_locks
+  body                   = each.value.body
+  ignore_body_changes    = length(var.ignore_body_changes.authorization_locks) > 0 ? var.ignore_body_changes.authorization_locks : null
+  response_export_values = []
+  retry                  = var.retry
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition     = contains(["CanNotDelete", "ReadOnly"], local.private_endpoints[each.value.pe_key].lock.kind)
+      error_message = "Private endpoint lock kind must be CanNotDelete or ReadOnly."
+    }
+  }
+  depends_on = [
+    azapi_resource.private_dns_zone_groups,
+    azapi_resource.private_endpoint_role_assignments,
+  ]
 }
