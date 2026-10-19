@@ -46,7 +46,13 @@ mock_provider "azurerm" {
   }
 }
 
-mock_provider "modtm" {}
+mock_provider "azapi" {
+  mock_data "azapi_client_config" {
+    defaults = {
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000"
+    }
+  }
+}
 
 mock_provider "random" {
   mock_resource "random_uuid" {
@@ -76,8 +82,8 @@ run "empty_defaults" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   assert {
@@ -96,8 +102,8 @@ run "legacy_endpoint_names_and_scope" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -133,8 +139,8 @@ run "all_endpoint_settings" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -229,8 +235,8 @@ run "static_ip_default_member" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -259,8 +265,8 @@ run "multiple_endpoints_and_dns_zones" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -296,8 +302,8 @@ run "externally_managed_dns" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -324,8 +330,8 @@ run "default_and_explicit_nic_names" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -352,8 +358,8 @@ run "same_nic_name_in_different_resource_groups" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -382,8 +388,8 @@ run "reject_duplicate_generated_nic_names" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -406,8 +412,8 @@ run "reject_custom_and_default_nic_collision" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -431,8 +437,8 @@ run "reject_case_insensitive_custom_nic_collision" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -458,8 +464,8 @@ run "lock_inheritance_and_opt_out" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -510,8 +516,8 @@ run "tag_inheritance_and_empty_override" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -543,8 +549,8 @@ run "generated_endpoint_role_name" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -573,8 +579,8 @@ run "azapi_controls" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -628,8 +634,8 @@ run "telemetry_enabled_with_mocks" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -648,8 +654,8 @@ run "invalid_subnet_id" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -669,8 +675,8 @@ run "invalid_dns_zone_id" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -691,8 +697,8 @@ run "invalid_application_security_group_id" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -715,8 +721,8 @@ run "invalid_delegated_identity_id" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -743,8 +749,8 @@ run "invalid_endpoint_resource_group_id" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -765,8 +771,8 @@ run "invalid_endpoint_subresource" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {
@@ -787,8 +793,8 @@ run "invalid_lock_inheritance_key" {
   providers = {
     azapi   = azapi.mock
     azurerm = azurerm
-    modtm   = modtm
-    random  = random
+
+    random = random
   }
 
   variables {

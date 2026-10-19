@@ -2,6 +2,10 @@ terraform {
   required_version = "~> 1.5"
 
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.12"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.21"
@@ -21,8 +25,12 @@ provider "azurerm" {
 # This allows us to randomize the region for the resource group.
 module "regions" {
   source  = "Azure/avm-utl-regions/azurerm"
-  version = "0.9.2"
+  version = "0.13.0"
+  providers = {
+    azapi = azapi
+  }
 
+  location         = var.location
   enable_telemetry = var.enable_telemetry
 }
 
@@ -36,8 +44,8 @@ resource "random_integer" "region_index" {
 
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
-  source  = "Azure/naming/azurerm"
-  version = "0.3.0"
+  source  = "Azure/avm-utl-naming/azure"
+  version = "0.2.0"
 }
 
 # This is required for resource modules
@@ -49,6 +57,9 @@ resource "azurerm_resource_group" "this" {
 # This is the module call for the Relay namespace
 module "relay_namespace" {
   source = "../../"
+  providers = {
+    azapi = azapi
+  }
 
   location              = azurerm_resource_group.this.location
   name                  = module.naming.relay_namespace.name_unique
@@ -65,6 +76,7 @@ module "relay_namespace" {
 module "auth_rule" {
   source = "../../modules/authorization-rule"
 
+  location           = var.location
   name               = "RootManageSharedAccessKey"
   relay_namespace_id = module.relay_namespace.resource_id
   rights             = ["Listen", "Send", "Manage"]
@@ -75,6 +87,7 @@ module "auth_rule" {
 module "hybrid_connection" {
   source = "../../modules/hybrid-connection"
 
+  location                      = var.location
   name                          = "my-hybrid-connection"
   relay_namespace_id            = module.relay_namespace.resource_id
   enable_telemetry              = var.enable_telemetry
@@ -86,6 +99,7 @@ module "hybrid_connection" {
 module "wcf_relay" {
   source = "../../modules/wcf-relay"
 
+  location                      = var.location
   name                          = "my-wcf-relay"
   relay_namespace_id            = module.relay_namespace.resource_id
   relay_type                    = "NetTcp"
@@ -99,6 +113,7 @@ module "wcf_relay" {
 module "network_rule_set" {
   source = "../../modules/network-rule-set"
 
+  location           = var.location
   relay_namespace_id = module.relay_namespace.resource_id
   default_action     = "Deny"
   enable_telemetry   = var.enable_telemetry
