@@ -7,6 +7,7 @@ terraform {
   required_version = "~> 1.5"
 
   required_providers {
+    # tflint-ignore: terraform_unused_required_providers
     azapi = {
       source  = "Azure/azapi"
       version = "~> 2.12"
@@ -31,9 +32,6 @@ provider "azurerm" {
 module "regions" {
   source  = "Azure/avm-utl-regions/azurerm"
   version = "0.13.0"
-  providers = {
-    azapi = azapi
-  }
 
   location         = var.location
   enable_telemetry = var.enable_telemetry
@@ -62,9 +60,6 @@ resource "azurerm_resource_group" "this" {
 # This is the module call for the Relay namespace
 module "relay_namespace" {
   source = "../../"
-  providers = {
-    azapi = azapi
-  }
 
   location              = azurerm_resource_group.this.location
   name                  = module.naming.relay_namespace.name_unique
