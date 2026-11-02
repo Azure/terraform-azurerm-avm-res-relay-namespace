@@ -71,21 +71,21 @@ module "relay_namespace" {
 module "auth_rule" {
   source = "../../modules/authorization-rule"
 
-  location           = var.location
   name               = "RootManageSharedAccessKey"
   relay_namespace_id = module.relay_namespace.resource_id
   rights             = ["Listen", "Send", "Manage"]
   enable_telemetry   = var.enable_telemetry
+  location           = var.location
 }
 
 # Hybrid Connection
 module "hybrid_connection" {
   source = "../../modules/hybrid-connection"
 
-  location                      = var.location
   name                          = "my-hybrid-connection"
   relay_namespace_id            = module.relay_namespace.resource_id
   enable_telemetry              = var.enable_telemetry
+  location                      = var.location
   requires_client_authorization = true
   user_metadata                 = "Example hybrid connection"
 }
@@ -94,11 +94,11 @@ module "hybrid_connection" {
 module "wcf_relay" {
   source = "../../modules/wcf-relay"
 
-  location                      = var.location
   name                          = "my-wcf-relay"
   relay_namespace_id            = module.relay_namespace.resource_id
   relay_type                    = "NetTcp"
   enable_telemetry              = var.enable_telemetry
+  location                      = var.location
   requires_client_authorization = true
   requires_transport_security   = true
   user_metadata                 = "Example WCF relay"
