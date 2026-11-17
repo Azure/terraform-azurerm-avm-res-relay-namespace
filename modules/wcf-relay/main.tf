@@ -1,7 +1,7 @@
 resource "azapi_resource" "wcf_relay" {
   name      = var.name
   parent_id = var.relay_namespace_id
-  type      = "Microsoft.Relay/namespaces/wcfRelays@2024-01-01"
+  type      = var.resource_types.relay_namespaces_wcf_relays
   body = {
     properties = {
       relayType                   = var.relay_type
@@ -10,8 +10,21 @@ resource "azapi_resource" "wcf_relay" {
       userMetadata                = var.user_metadata
     }
   }
-  create_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
-  delete_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
-  read_headers   = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
-  update_headers = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
+  create_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
+  delete_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
+  ignore_body_changes    = length(var.ignore_body_changes.relay_namespaces_wcf_relays) > 0 ? var.ignore_body_changes.relay_namespaces_wcf_relays : null
+  read_headers           = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
+  response_export_values = []
+  retry                  = var.retry
+  update_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
+
+  dynamic "timeouts" {
+    for_each = var.timeouts == null ? [] : [var.timeouts]
+    content {
+      create = timeouts.value.create
+      read   = timeouts.value.read
+      update = timeouts.value.update
+      delete = timeouts.value.delete
+    }
+  }
 }
