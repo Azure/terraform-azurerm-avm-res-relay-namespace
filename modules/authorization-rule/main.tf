@@ -7,7 +7,7 @@ resource "azapi_update_resource" "authorization_rule" {
     }
   }
   read_headers           = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
-  response_export_values = []
+  response_export_values = null
   retry                  = var.retry
   update_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
 

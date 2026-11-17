@@ -14,7 +14,7 @@ resource "azapi_resource" "wcf_relay" {
   delete_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
   ignore_body_changes    = length(var.ignore_body_changes.relay_namespaces_wcf_relays) > 0 ? var.ignore_body_changes.relay_namespaces_wcf_relays : null
   read_headers           = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
-  response_export_values = []
+  response_export_values = null
   retry                  = var.retry
   update_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
 

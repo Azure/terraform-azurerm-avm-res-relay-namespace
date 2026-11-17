@@ -10,7 +10,7 @@ resource "azapi_update_resource" "network_rule_set" {
     }
   }
   read_headers           = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
-  response_export_values = []
+  response_export_values = null
   retry                  = var.retry
   update_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
 
