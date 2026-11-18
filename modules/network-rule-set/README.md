@@ -28,7 +28,7 @@ module "network_rule_set" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.11.0, < 2.0.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
@@ -61,14 +61,6 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
-
-### <a name="input_avm_azapi_header"></a> [avm\_azapi\_header](#input\_avm\_azapi\_header)
-
-Description: The AVM AzAPI header value to use for telemetry.
-
-Type: `string`
-
-Default: `""`
 
 ### <a name="input_default_action"></a> [default\_action](#input\_default\_action)
 
@@ -110,6 +102,64 @@ Description: Public network access for the namespace. Possible values are 'Enabl
 Type: `string`
 
 Default: `"Enabled"`
+
+### <a name="input_resource_types"></a> [resource\_types](#input\_resource\_types)
+
+Description: AzAPI resource types and API versions used by the module.
+
+- `relay_namespaces_network_rule_sets` - The network rule set.
+
+Type:
+
+```hcl
+object({
+    relay_namespaces_network_rule_sets = optional(string, "Microsoft.Relay/namespaces/networkRuleSets@2024-01-01")
+  })
+```
+
+Default: `{}`
+
+### <a name="input_retry"></a> [retry](#input\_retry)
+
+Description: Retry configuration applied to the AzAPI resource declared by this module.
+
+- `error_message_regex` - Error patterns that trigger a retry.
+- `interval_seconds` - Initial retry interval in seconds.
+- `max_interval_seconds` - Maximum retry interval in seconds.
+
+Type:
+
+```hcl
+object({
+    error_message_regex  = optional(list(string))
+    interval_seconds     = optional(number)
+    max_interval_seconds = optional(number)
+  })
+```
+
+Default: `null`
+
+### <a name="input_timeouts"></a> [timeouts](#input\_timeouts)
+
+Description: Operation timeouts applied to the AzAPI resource declared by this module. Values are duration strings; null uses provider defaults.
+
+- `create` - Create timeout.
+- `read` - Read timeout.
+- `update` - Update timeout.
+- `delete` - Delete timeout.
+
+Type:
+
+```hcl
+object({
+    create = optional(string)
+    read   = optional(string)
+    update = optional(string)
+    delete = optional(string)
+  })
+```
+
+Default: `null`
 
 ### <a name="input_trusted_service_access_enabled"></a> [trusted\_service\_access\_enabled](#input\_trusted\_service\_access\_enabled)
 

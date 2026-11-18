@@ -22,7 +22,7 @@ module "hybrid_connection" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.11.0, < 2.0.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
@@ -56,14 +56,6 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
-### <a name="input_avm_azapi_header"></a> [avm\_azapi\_header](#input\_avm\_azapi\_header)
-
-Description: The AVM AzAPI header value to use for telemetry.
-
-Type: `string`
-
-Default: `""`
-
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: This variable controls whether or not telemetry is enabled for the module.  
@@ -73,6 +65,22 @@ If it is set to false, then no telemetry will be collected.
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_ignore_body_changes"></a> [ignore\_body\_changes](#input\_ignore\_body\_changes)
+
+Description: Body-relative paths ignored for the Relay resource. Paths use dot notation. Changes take effect only after apply. Ignored configuration is not sent to Azure until the path is removed.
+
+- `relay_namespaces_hybrid_connections` - The hybrid connection.
+
+Type:
+
+```hcl
+object({
+    relay_namespaces_hybrid_connections = optional(list(string), [])
+  })
+```
+
+Default: `{}`
 
 ### <a name="input_location"></a> [location](#input\_location)
 
@@ -89,6 +97,64 @@ Description: Indicates whether client authorization is required.
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_resource_types"></a> [resource\_types](#input\_resource\_types)
+
+Description: AzAPI resource types and API versions used by the module.
+
+- `relay_namespaces_hybrid_connections` - The hybrid connection.
+
+Type:
+
+```hcl
+object({
+    relay_namespaces_hybrid_connections = optional(string, "Microsoft.Relay/namespaces/hybridConnections@2024-01-01")
+  })
+```
+
+Default: `{}`
+
+### <a name="input_retry"></a> [retry](#input\_retry)
+
+Description: Retry configuration applied to the AzAPI resource declared by this module.
+
+- `error_message_regex` - Error patterns that trigger a retry.
+- `interval_seconds` - Initial retry interval in seconds.
+- `max_interval_seconds` - Maximum retry interval in seconds.
+
+Type:
+
+```hcl
+object({
+    error_message_regex  = optional(list(string))
+    interval_seconds     = optional(number)
+    max_interval_seconds = optional(number)
+  })
+```
+
+Default: `null`
+
+### <a name="input_timeouts"></a> [timeouts](#input\_timeouts)
+
+Description: Operation timeouts applied to the AzAPI resource declared by this module. Values are duration strings; null uses provider defaults.
+
+- `create` - Create timeout.
+- `read` - Read timeout.
+- `update` - Update timeout.
+- `delete` - Delete timeout.
+
+Type:
+
+```hcl
+object({
+    create = optional(string)
+    read   = optional(string)
+    update = optional(string)
+    delete = optional(string)
+  })
+```
+
+Default: `null`
 
 ### <a name="input_user_metadata"></a> [user\_metadata](#input\_user\_metadata)
 
