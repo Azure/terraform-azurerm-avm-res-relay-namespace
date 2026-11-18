@@ -13,12 +13,6 @@ variable "relay_namespace_id" {
   description = "The resource ID of the parent Relay namespace."
 }
 
-variable "avm_azapi_header" {
-  type        = string
-  default     = ""
-  description = "The AVM AzAPI header value to use for telemetry."
-}
-
 variable "enable_telemetry" {
   type        = bool
   default     = true

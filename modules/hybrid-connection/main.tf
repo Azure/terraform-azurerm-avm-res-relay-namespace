@@ -8,13 +8,9 @@ resource "azapi_resource" "hybrid_connection" {
       userMetadata                = var.user_metadata
     }
   }
-  create_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
-  delete_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
   ignore_body_changes    = length(var.ignore_body_changes.relay_namespaces_hybrid_connections) > 0 ? var.ignore_body_changes.relay_namespaces_hybrid_connections : null
-  read_headers           = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
   response_export_values = null
   retry                  = var.retry
-  update_headers         = var.enable_telemetry ? { "User-Agent" : var.avm_azapi_header } : null
 
   dynamic "timeouts" {
     for_each = var.timeouts == null ? [] : [var.timeouts]

@@ -62,14 +62,6 @@ Type: `string`
 
 The following input variables are optional (have default values):
 
-### <a name="input_avm_azapi_header"></a> [avm\_azapi\_header](#input\_avm\_azapi\_header)
-
-Description: The AVM AzAPI header value to use for telemetry.
-
-Type: `string`
-
-Default: `""`
-
 ### <a name="input_default_action"></a> [default\_action](#input\_default\_action)
 
 Description: The default action when no rule matches. Possible values are 'Allow' or 'Deny'.

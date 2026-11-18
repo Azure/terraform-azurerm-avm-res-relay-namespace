@@ -61,14 +61,6 @@ Type: `list(string)`
 
 The following input variables are optional (have default values):
 
-### <a name="input_avm_azapi_header"></a> [avm\_azapi\_header](#input\_avm\_azapi\_header)
-
-Description: The AVM AzAPI header value to use for telemetry.
-
-Type: `string`
-
-Default: `""`
-
 ### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
 
 Description: This variable controls whether or not telemetry is enabled for the module.  
