@@ -1,9 +1,3 @@
-variable "location" {
-  type        = string
-  description = "The Azure region for this module's resources or telemetry deployment."
-  nullable    = false
-}
-
 variable "relay_namespace_id" {
   type        = string
   description = "The resource ID of the parent Relay namespace."
@@ -38,6 +32,17 @@ variable "ip_rules" {
   }))
   default     = []
   description = "List of IP rules. Each rule must contain an ipMask and optionally an action (default: Allow)."
+}
+
+variable "location" {
+  type        = string
+  default     = null
+  description = "The Azure region for this module's resources or telemetry deployment."
+
+  validation {
+    condition     = !var.enable_telemetry || var.location != null
+    error_message = "The location must not be null when telemetry is enabled."
+  }
 }
 
 variable "public_network_access" {

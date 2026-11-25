@@ -108,7 +108,6 @@ module "wcf_relay" {
 module "network_rule_set" {
   source = "../../modules/network-rule-set"
 
-  location           = var.location
   relay_namespace_id = module.relay_namespace.resource_id
   default_action     = "Deny"
   enable_telemetry   = var.enable_telemetry
@@ -118,6 +117,7 @@ module "network_rule_set" {
       action = "Allow"
     }
   ]
+  location                       = var.location
   public_network_access          = "Enabled"
   trusted_service_access_enabled = true
 }
