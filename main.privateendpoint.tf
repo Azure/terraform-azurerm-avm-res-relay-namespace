@@ -2,8 +2,8 @@ module "avm_interfaces" {
   source  = "Azure/avm-utl-interfaces/azure"
   version = "0.10.1"
 
-  location         = var.location
   enable_telemetry = var.enable_telemetry
+  location         = var.location
   lock             = var.lock
   # The service is wired below; it must not change the helper's legacy NIC and connection names.
   private_endpoints = {
