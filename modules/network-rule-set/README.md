@@ -46,12 +46,6 @@ The following resources are used by this module:
 
 The following input variables are required:
 
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: The Azure region for this module's resources or telemetry deployment.
-
-Type: `string`
-
 ### <a name="input_relay_namespace_id"></a> [relay\_namespace\_id](#input\_relay\_namespace\_id)
 
 Description: The resource ID of the parent Relay namespace.
@@ -94,6 +88,14 @@ list(object({
 ```
 
 Default: `[]`
+
+### <a name="input_location"></a> [location](#input\_location)
+
+Description: The Azure region for this module's resources or telemetry deployment.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_public_network_access"></a> [public\_network\_access](#input\_public\_network\_access)
 
