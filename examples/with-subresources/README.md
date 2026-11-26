@@ -31,7 +31,7 @@ provider "azurerm" {
 # This allows us to randomize the region for the resource group.
 module "regions" {
   source  = "Azure/avm-utl-regions/azurerm"
-  version = "0.13.2"
+  version = "0.15.0"
 
   location         = var.location
   enable_telemetry = var.enable_telemetry
@@ -211,7 +211,7 @@ Version:
 
 Source: Azure/avm-utl-regions/azurerm
 
-Version: 0.13.2
+Version: 0.15.0
 
 ### <a name="module_relay_namespace"></a> [relay\_namespace](#module\_relay\_namespace)
 
